@@ -24,31 +24,47 @@ const DateElem=document.querySelector(".date");
 const conditionElem=document.querySelector(".condition");
 
 
-function updateDOM(data){
-    console.log("I will update the donm", data);
-    const temp= data.current.temp_c;
-    const location= data.location.name;
-    const time_Date= data.location.localtime;
-    const [date, time]=time_Date.split(" ");
-    const iconLink= data.current.condition.icon;
-    const condition= data.current.condition.text;
-    console.log("```````````````");
-    console.log("Temp:",temp, "Location:",location, "Date:", date);
-    console.log("Time:",time, "Icon_Link:",iconLink);
-    console.log("````````````````");
+const dayElem = document.querySelector(".day"); // Select the day element
 
-    /*********************update the dom*************************/
-    tempElem.textContent=temp+ "°C";
-    locationElem.textContent=location;
-    emojiElem.src=iconLink;
-    TimeElem.innerText=time;
-    DateElem.innerText=date;
-    conditionElem.innerText=condition;
-    
+function updateDOM(data) {
+    console.log("I will update the DOM", data);
+    const temp = data.current.temp_c;
+    const location = data.location.name;
+    const time_Date = data.location.localtime; // Example: "2025-03-31 10:20"
+    const [date, time] = time_Date.split(" ");
+    const iconLink = data.current.condition.icon;
+    const condition = data.current.condition.text;
 
+    // Calculate correct weekday
+    const dateObj = new Date(date);
+    const dayOfWeek = dateObj.toLocaleDateString('en-US', { weekday: 'long' });
+
+    console.log("Raw API localtime:", data.location.localtime);
+    console.log("Extracted Date:", date);
+    console.log("Calculated Day of Week:", dayOfWeek);
+    console.log("Before update: DateElem.innerText =", DateElem.innerText);
+    console.log("Before update: dayElem.innerText =", dayElem.innerText); 
+
+    /********************* 🔥 FIX: Update Day and Date Separately 🔥 *************************/
+    if (dayElem) {
+        dayElem.textContent = dayOfWeek; // Update only the day
+    }
+    if (DateElem) {
+        DateElem.textContent = date; // Update only the date
+    }
+
+    /********************* Update the rest of the DOM *************************/
+    tempElem.textContent = temp + "°C";
+    locationElem.textContent = location;
+    emojiElem.src = iconLink;
+    TimeElem.innerText = time;
+    conditionElem.innerText = condition;
 }
+
+
+
 async function fetchWeather(location){
-    const url=`https://api.weatherapi.com/v1/current.json?key=6fc74cf82bc44773a8a171855241407&q=${location}&aqi=no`
+    const url=`http://api.weatherapi.com/v1/current.json?key=6fc74cf82bc44773a8a171855241407&q=${location}&aqi=no`
     const response= await fetch(url)
     // fetch -> inbuilt function to get http response from a server
     if(response.status==400){
